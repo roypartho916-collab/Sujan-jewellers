@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>সুজন জুয়েলার্স | Admin Demo</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;background:#fffaf1;color:#2b2118}
+header{background:#17120d;color:#e7c568;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+header b{font-size:23px}header button{background:#e7c568;border:0;padding:9px 14px;border-radius:20px;font-weight:bold}
+.hero{padding:55px 20px;text-align:center;background:linear-gradient(135deg,#25190d,#765018);color:#fff}
+.hero h1{color:#e7c568;font-size:38px;margin:0 0 8px}.hero p{margin:0}
+main{max-width:1100px;margin:auto;padding:35px 20px}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:25px}
+.tabs button{padding:11px 17px;border:1px solid #d9bd76;background:#fff;border-radius:22px;cursor:pointer}.tabs button.active{background:#d9b65c}
+.panel{background:#fff;border:1px solid #ead9ad;border-radius:15px;padding:22px;margin-bottom:25px;box-shadow:0 5px 18px #0000000b}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}.card{border:1px solid #ead9ad;border-radius:12px;overflow:hidden;background:#fff}.card img{width:100%;height:180px;object-fit:cover;background:#f2ead8}.card .info{padding:14px}.price{color:#8b6417;font-weight:bold;font-size:18px}.muted{color:#75695c}
+form{display:grid;gap:12px;max-width:600px}input,textarea,select{width:100%;padding:12px;border:1px solid #d8c69b;border-radius:9px;font:inherit}textarea{min-height:90px;resize:vertical}.primary{background:#17120d;color:#e7c568;border:0;padding:12px 18px;border-radius:9px;cursor:pointer;font-weight:bold}
+.hidden{display:none}.admin-note{background:#fff5d8;padding:12px;border-radius:9px;margin-bottom:15px}.empty{text-align:center;padding:30px;color:#75695c}
+footer{text-align:center;background:#17120d;color:#ddd;padding:22px;margin-top:30px}
+</style>
+</head>
+<body>
+<header><b>সুজন জুয়েলার্স</b><button onclick="showTab('admin')">⚙️ Admin</button></header>
+<section class="hero"><h1>সুজন জুয়েলার্স</h1><p>আপনার পছন্দের গহনা এক জায়গায়</p></section>
+
+<main>
+<div class="tabs">
+<button id="shopBtn" class="active" onclick="showTab('shop')">🛍️ গহনা দেখুন</button>
+<button id="adminBtn" onclick="showTab('admin')">⚙️ পণ্য যোগ করুন</button>
+</div>
+
+<section id="shop" class="panel">
+<h2>আমাদের গহনা</h2>
+<div id="products" class="grid"></div>
+</section>
+
+<section id="admin" class="panel hidden">
+<h2>নতুন পণ্য যোগ করুন</h2>
+<div class="admin-note">এই ডেমোতে যোগ করা পণ্য এই ব্রাউজারেই সংরক্ষিত থাকবে।</div>
+<form id="productForm">
+<label>পণ্যের ছবি</label><input id="photo" type="file" accept="image/*" required>
+<label>পণ্যের নাম</label><input id="name" placeholder="যেমন: সোনার আংটি" required>
+<label>ক্যাটাগরি</label>
+<select id="category"><option>আংটি</option><option>হার ও চেইন</option><option>কানের দুল</option><option>বালা</option><option>অন্যান্য</option></select>
+<label>দাম</label><input id="price" placeholder="যেমন: ২৫,০০০ টাকা">
+<label>বিবরণ</label><textarea id="desc" placeholder="পণ্যের সংক্ষিপ্ত বিবরণ"></textarea>
+<button class="primary" type="submit">➕ ওয়েবসাইটে যোগ করুন</button>
+</form>
+</section>
+</main>
+<footer>© 2026 সুজন জুয়েলার্স</footer>
+
+<script>
+const key="sujan_products_v1";
+let products=JSON.parse(localStorage.getItem(key)||"[]");
+function save(){localStorage.setItem(key,JSON.stringify(products));render()}
+function showTab(t){
+ document.getElementById("shop").classList.toggle("hidden",t!=="shop");
+ document.getElementById("admin").classList.toggle("hidden",t!=="admin");
+ document.getElementById("shopBtn").classList.toggle("active",t==="shop");
+ document.getElementById("adminBtn").classList.toggle("active",t==="admin");
+ if(t==="shop") render();
+}
+function render(){
+ const box=document.getElementById("products");
+ if(!products.length){box.innerHTML='<div class="empty">এখনও কোনো পণ্য যোগ করা হয়নি। Admin থেকে প্রথম পণ্যটি যোগ করুন।</div>';return}
+ box.innerHTML=products.map((p,i)=>`<article class="card">
+ <img src="${p.photo}" alt="${p.name}">
+ <div class="info"><h3>${p.name}</h3><div class="muted">${p.category}</div><p>${p.desc||""}</p><div class="price">${p.price||"দাম জানতে যোগাযোগ করুন"}</div>
+ <br><button onclick="removeProduct(${i})">🗑️ মুছুন</button></div></article>`).join("");
+}
+function removeProduct(i){if(confirm("এই পণ্যটি মুছে ফেলবেন?")){products.splice(i,1);save()}}
+document.getElementById("productForm").addEventListener("submit",e=>{
+ e.preventDefault();const file=document.getElementById("photo").files[0];
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{products.push({photo:reader.result,name:name.value,category:category.value,price:price.value,desc:desc.value});save();e.target.reset();showTab("shop");alert("পণ্য সফলভাবে যোগ হয়েছে।")};
+ reader.readAsDataURL(file);
+});
+render();
+</script>
+</body>
+</html>
