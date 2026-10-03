@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sujan Jewellers - প্রোডাক্টস</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; text-align: center; }
+        h1 { color: #d4af37; margin-bottom: 5px; }
+        h3 { color: #555; margin-top: 0; }
+        .product-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 20px; }
+        .product-card { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 220px; text-align: left; border-top: 4px solid #d4af37; }
+        .product-card h3 { margin: 0 0 10px 0; color: #333; }
+        .product-card p { margin: 5px 0; color: #555; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>SUJAN JEWELLERS</h1>
+    <h3>আমাদের গহনার সংগ্রহ</h3>
+
+    <div class="product-grid" id="productList"></div>
+
+    <script>
+        function loadProducts() {
+            const productList = document.getElementById('productList');
+            const products = JSON.parse(localStorage.getItem('sujan_products')) || [];
+            
+            if(products.length === 0) {
+                productList.innerHTML = "<p>বর্তমানে কোনো পণ্য যুক্ত করা নেই।</p>";
+                return;
+            }
+
+            productList.innerHTML = '';
+            products.forEach((product) => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <h3>${product.name}</h3>
+                    <p>ওজন: ${product.weight}</p>
+                `;
+                productList.appendChild(card);
+            });
+        }
+
+        window.onload = loadProducts;
+    </script>
+</body>
+</html>
